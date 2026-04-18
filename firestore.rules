@@ -1,0 +1,103 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    
+    // --- Validation Blueprints ---
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['displayName', 'email', 'createdAt'])
+        && data.displayName is string && data.displayName.size() <= 100
+        && data.email is string && data.email.size() <= 200
+        && data.createdAt == request.time;
+    }
+
+    function isValidVenueBooking(data) {
+      return data.keys().hasAll(['userId', 'venueId', 'date', 'companyName', 'email', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 8
+        && data.userId == request.auth.uid
+        && data.venueId is string && data.venueId.size() <= 128
+        && data.date is string && data.date.size() <= 128
+        && data.companyName is string && data.companyName.size() <= 200
+        && data.email is string && data.email.size() <= 200
+        && data.status in ['pending', 'confirmed', 'cancelled']
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidLeasingCall(data) {
+      return data.keys().hasAll(['fullName', 'email', 'phone', 'companyName', 'status', 'createdAt'])
+        && data.fullName is string && data.fullName.size() <= 200
+        && data.email is string && data.email.size() <= 200
+        && data.phone is string && data.phone.size() <= 50
+        && data.companyName is string && data.companyName.size() <= 200
+        && data.status in ['pending', 'contacted', 'closed']
+        && data.createdAt == request.time;
+    }
+
+    // --- Collection Routes ---
+    match /config/landing {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /properties/{propertyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /leasingCalls/{callId} {
+      allow create: if isValidLeasingCall(incoming()) && incoming().status == 'pending';
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /admins/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUserProfile(incoming());
+      allow update: if isSignedIn() && request.auth.uid == userId && isValidUserProfile(incoming()) 
+        && incoming().email == existing().email 
+        && incoming().createdAt == existing().createdAt;
+    }
+
+    match /bookings/{bookingId} {
+      // 3. Path Variable Hardening
+      allow get: if isOwner(existing().userId) && isValidId(bookingId);
+      
+      // 8. Secure List Queries
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isSignedIn() 
+        && isValidVenueBooking(incoming())
+        && incoming().status == 'pending'; // Users can only create pending bookings
+      
+      allow update: if isOwner(existing().userId)
+        && isValidVenueBooking(incoming())
+        // 4. Action-Based Updates
+        && incoming().userId == existing().userId // Immortal Field
+        && incoming().createdAt == existing().createdAt // Immortal Field
+        && (
+          // Action: Cancel
+          (incoming().status == 'cancelled' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          // Action: Shift Date
+          (incoming().status == 'pending' && incoming().diff(existing()).affectedKeys().hasOnly(['date', 'updatedAt']))
+        );
+        
+      allow delete: if false; // Soft deletes via status='cancelled' preferred
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "entities": {
+    "VenueBooking": {
+      "title": "Venue Booking",
+      "description": "A reservation or inquiry for a leasing space at American Dream",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the user making the booking" },
+        "venueId": { "type": "string", "description": "ID of the specific venue or space" },
+        "date": { "type": "string", "format": "date-time", "description": "Scheduled date for the tour or event" },
+        "companyName": { "type": "string", "description": "Name of the business inquiring" },
+        "email": { "type": "string", "format": "email", "description": "Contact email" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "venueId", "date", "companyName", "email", "status", "createdAt", "updatedAt"]
+    },
+    "Property": {
+      "title": "Commercial Property",
+      "description": "Available luxury spaces for lease",
+      "type": "object",
+      "properties": {
+        "propertyName": { "type": "string" },
+        "location": { "type": "string" },
+        "type": { "type": "string", "enum": ["retail", "luxury", "dining", "entertainment"] },
+        "sizeRange": { "type": "string" },
+        "priceRange": { "type": "string" },
+        "description": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "available": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["propertyName", "type", "available", "createdAt"]
+    },
+    "LeasingCall": {
+      "title": "Leasing Call Request",
+      "description": "Information for a scheduled leasing outreach",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "companyName": { "type": "string" },
+        "businessType": { "type": "string" },
+        "preferredPropertyType": { "type": "string" },
+        "spaceRequired": { "type": "string" },
+        "budget": { "type": "string" },
+        "preferredDate": { "type": "string" },
+        "preferredTime": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "contacted", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "email", "phone", "companyName", "status", "createdAt"]
+    },
+    "SiteConfig": {
+      "title": "Site Configuration",
+      "description": "Dynamic content for the landing page sections",
+      "type": "object",
+      "properties": {
+        "retail": { "$ref": "#/definitions/SectionConfig" },
+        "sponsorship": { "$ref": "#/definitions/SectionConfig" },
+        "investor": { "$ref": "#/definitions/SectionConfig" },
+        "events": { "$ref": "#/definitions/SectionConfig" },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string" },
+              "title": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "SectionConfig": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "cta": { "type": "string" },
+        "image": { "type": "string" },
+        "stats": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "SectionConfig": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "cta": { "type": "string" },
+        "image": { "type": "string" },
+        "stats": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/properties/{propertyId}": {
+      "schema": "Property",
+      "description": "Collection of commercial properties"
+    },
+    "/leasingCalls/{callId}": {
+      "schema": "LeasingCall",
+      "description": "Collection of leasing call requests"
+    },
+    "/admins/{userId}": {
+      "schema": "object",
+      "description": "Registry of administrative UIDs"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "VenueBooking",
+      "description": "Collection of leasing inquiries and bookings"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection of user profiles"
+    },
+    "/config/landing": {
+      "schema": "SiteConfig",
+      "description": "Global landing page content configuration"
+    }
+  }
+}

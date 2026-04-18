@@ -1,0 +1,50 @@
+[
+  {
+    "propertyName": "The Crystal Gallery",
+    "location": "Luxury Wing, Level 2",
+    "type": "luxury",
+    "sizeRange": "1,200 - 3,500 sq ft",
+    "priceRange": "$150/sq ft",
+    "description": "A striking glass-fronted corner unit optimized for high-end boutique visibility. Features 20ft ceilings and integrated smart lighting systems.",
+    "features": ["corner unit", "20ft ceilings", "smart lighting", "luxury row"],
+    "images": ["https://images.unsplash.com/photo-1519567241046-7f570eee3ce6"],
+    "available": true,
+    "createdAt": "2024-04-18T12:00:00Z"
+  },
+  {
+    "propertyName": "Grand Atrium Restaurant",
+    "location": "Plaza Level, Central Atrium",
+    "type": "dining",
+    "sizeRange": "5,000 - 8,000 sq ft",
+    "priceRange": "Request Quote",
+    "description": "Premier culinary space with full terrace access and panoramic views of the main entertainment fountain. Fully equipped grease trap and high-capacity ventilation.",
+    "features": ["terrace", "full kitchen", "fountain view", "high traffic"],
+    "images": ["https://images.unsplash.com/photo-1517248135467-4c7ed9d421bb"],
+    "available": true,
+    "createdAt": "2024-04-18T12:01:00Z"
+  },
+  {
+    "propertyName": "Neon Nexus Hall",
+    "location": "Entertainment District, Level 3",
+    "type": "entertainment",
+    "sizeRange": "15,000 - 40,000 sq ft",
+    "priceRange": "$80/sq ft",
+    "description": "Massive immersive venue space perfect for e-sports, VR experiences, or large-scale digital art exhibitions.",
+    "features": ["high load floors", "fiber optic", "soundproofed", "3-phase power"],
+    "images": ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30"],
+    "available": true,
+    "createdAt": "2024-04-18T12:02:00Z"
+  },
+  {
+    "propertyName": "Urban Edge Flagship",
+    "location": "Street Level, North Entrance",
+    "type": "retail",
+    "sizeRange": "12,000 sq ft",
+    "priceRange": "$110/sq ft",
+    "description": "Multi-level flagship opportunity with dual visibility on both exterior street and interior mall corridor. Prime signage rights included.",
+    "features": ["dual entrance", "signage rights", "multi-level", "high footfall"],
+    "images": ["https://images.unsplash.com/photo-1441986300917-64674bd600d8"],
+    "available": true,
+    "createdAt": "2024-04-18T12:03:00Z"
+  }
+]
